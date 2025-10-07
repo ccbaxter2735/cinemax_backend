@@ -27,6 +27,17 @@ MIDDLEWARE = [
 #     'http://localhost:5173',
 # ]
 
+# chemin où collectstatic va écrire
+STATIC_URL = "/static/"
+STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
+
+# stockage des fichiers statiques (Whitenoise recommandé en production)
+STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+
+# Optionnel — si tu gères des fichiers uploadés
+MEDIA_URL = "/media/"
+MEDIA_ROOT = os.path.join(BASE_DIR, "media")
+
 STORAGE = {
     "default": {
         "BACKEND": "django.core.files.storage.FileSystemStorage",
