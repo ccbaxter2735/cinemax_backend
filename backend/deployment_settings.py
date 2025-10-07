@@ -27,14 +27,14 @@ MIDDLEWARE = [
 #     'http://localhost:5173',
 # ]
 
-STORAGE = [
+STORAGE = {
     "default": {
         "BACKEND": "django.core.files.storage.FileSystemStorage",
     },
     "staticfiles": {
         "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
     },
-]
+}
 
 DATABASES = {
     'default': dj_database_url.config(
