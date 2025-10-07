@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+
+# exit si il y a une erreur
+set -o errexit
+
+pip install -r requirements.txt
+
+python manage.py collectstatic --no-input
+
+python manage.py migrate
