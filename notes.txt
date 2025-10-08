@@ -4,3 +4,5 @@
 sur render changer build command avec ecrit de base pip install requirements.txt par ./build.sh
 et python -m gunicorn backend.asgi:application -k uvicorn.workers.UvicornWorker dans start command
 
+voir pour ajouter stockage persistant
+
