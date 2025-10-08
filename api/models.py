@@ -45,8 +45,8 @@ class Movie(models.Model):
     director = models.CharField("Réalisateur", max_length=255, blank=True)
     description = models.TextField("Descriptif", blank=True)
     release_date = models.DateField("Date de sortie", null=True, blank=True)
-    poster = models.ImageField("Affiche", upload_to='media/movies/posters/', null=True, blank=True)
-    illustration = models.ImageField("Image d'illustration", upload_to='media/movies/illustrations/', null=True, blank=True)
+    poster = models.ImageField("Affiche", upload_to='movies/posters/', null=True, blank=True)
+    illustration = models.ImageField("Image d'illustration", upload_to='movies/illustrations/', null=True, blank=True)
     cast = models.ManyToManyField(Actor, through='Casting', related_name='movies', blank=True)
 
     # champs dénormalisés (optionnels) — seront tenus à jour par signaux
