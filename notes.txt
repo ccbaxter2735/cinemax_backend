@@ -5,4 +5,7 @@ sur render changer build command avec ecrit de base pip install requirements.txt
 et python -m gunicorn backend.asgi:application -k uvicorn.workers.UvicornWorker dans start command
 
 voir pour ajouter stockage persistant
+bucket S3 Amazon
+nom du bucket: cinemax-bucket-365117798244
+video explicative: https://www.youtube.com/watch?v=JQVQcNN0cXE
 

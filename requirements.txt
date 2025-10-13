@@ -28,3 +28,5 @@ tornado==6.5.2
 uvicorn==0.37.0
 vite==1.5.2
 whitenoise==6.11.0
+django-storages
+boto3
