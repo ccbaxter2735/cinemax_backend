@@ -12,7 +12,7 @@ urlpatterns = [
     path('movies/<int:pk>/', views.MovieDetailView.as_view(), name='movie-detail'),
 
     # Création / listing des commentaires d'un film
-    path('movies/<int:movie_id>/comments/', views.MovieCommentsListCreateAPIView.as_view(), name='movie-comments'),
+    path('movies/<int:movie_id>/comments/', views.MovieCommentListCreateView.as_view(), name='movie-comments'),
 
     # Like / unlike toggle d'un film
     path('movies/<int:movie_id>/like/', views.toggle_like, name='movie-like'),

@@ -58,10 +58,11 @@ class CastingSerializer(serializers.ModelSerializer):
 # -----------------------
 class CommentSerializer(serializers.ModelSerializer):
     author_username = serializers.SerializerMethodField(read_only=True)
+    rating_score = serializers.IntegerField(source='rating.score', default=None)
 
     class Meta:
         model = Comment
-        fields = ['id', 'movie', 'author', 'author_username', 'text', 'created_at']
+        fields = ['id', 'movie', 'author', 'author_username', 'text', 'created_at', 'rating_score']
         read_only_fields = ['id', 'author', 'author_username', 'created_at','movie']
 
     def get_author_username(self, obj):
@@ -109,7 +110,6 @@ class LikeSerializer(serializers.ModelSerializer):
 # Rating
 # -----------------------
 class RatingSerializer(serializers.ModelSerializer):
-    # on n'expose pas 'movie' ni 'user' en écriture — ils seront injectés côté view
     class Meta:
         model = Rating
         fields = ['id', 'score', 'created_at', 'updated_at']  # adapte si ton modèle a d'autres champs

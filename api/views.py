@@ -3,6 +3,7 @@ from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404
 
 from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework import generics, permissions, status
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
@@ -38,18 +39,26 @@ class MovieDetailView(generics.RetrieveAPIView):
     permission_classes = [permissions.AllowAny]
 
 
-class MovieCommentsListCreateAPIView(generics.ListCreateAPIView):
+class MovieCommentListCreateView(generics.ListCreateAPIView):
     serializer_class = CommentSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    permission_classes = [IsAuthenticatedOrReadOnly]
 
     def get_queryset(self):
-        movie_id = self.kwargs.get('movie_id')
-        return Comment.objects.filter(movie_id=movie_id).select_related('author')
+        movie_id = self.kwargs['movie_id']
+        movie = get_object_or_404(Movie, pk=movie_id)
+        return movie.comments.all()
 
     def perform_create(self, serializer):
-        movie_id = self.kwargs.get('movie_id')
-        movie = generics.get_object_or_404(Movie, pk=movie_id)
-        serializer.save(author=self.request.user if self.request.user.is_authenticated else None, movie=movie)
+        movie_id = self.kwargs['movie_id']
+        movie = get_object_or_404(Movie, pk=movie_id)
+        # Lier éventuellement la note de l'utilisateur si elle existe
+        from .models import Rating
+        try:
+            rating = Rating.objects.get(movie=movie, user=self.request.user)
+        except Rating.DoesNotExist:
+            rating = None
+        serializer.save(author=self.request.user, movie=movie, rating=rating)
+
 
 
 @api_view(['POST'])
@@ -69,27 +78,23 @@ def toggle_like(request, movie_id):
 class MovieRatingCreateUpdateView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
-    def post(self, request, movie_id, *args, **kwargs):
+    def post(self, request, movie_id):
         movie = get_object_or_404(Movie, pk=movie_id)
-        serializer = RatingSerializer(data=request.data, context={'request': request})
+        serializer = RatingSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         score = serializer.validated_data['score']
 
-        # soit on met à jour, soit on crée
+        # Crée ou met à jour la note
         rating, created = Rating.objects.update_or_create(
             user=request.user,
             movie=movie,
             defaults={'score': score}
         )
 
-        # recalcul de la moyenne
-        agg = Rating.objects.filter(movie=movie).aggregate(avg=Avg('score'))
-        avg = agg['avg'] or 0.0
+        # Recalcul de la moyenne
+        avg = Rating.objects.filter(movie=movie).aggregate(avg=Avg('score'))['avg'] or 0.0
         movie.avg_rating = avg
         movie.save(update_fields=['avg_rating'])
 
-        data = {
-            'rating': RatingSerializer(rating).data,
-            'avg_rating': avg
-        }
-        return Response(data, status=status.HTTP_201_CREATED if created else status.HTTP_200_OK)
+        return Response({'rating': RatingSerializer(rating).data, 'avg_rating': avg})
+

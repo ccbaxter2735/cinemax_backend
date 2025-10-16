@@ -174,11 +174,9 @@ class Rating(models.Model):
 class Comment(models.Model):
     movie = models.ForeignKey('Movie', on_delete=models.CASCADE, related_name='comments')
     author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True)
+    rating = models.OneToOneField('Rating', on_delete=models.SET_NULL, null=True, blank=True)  # <--- doit être là
     text = models.TextField(max_length=2000)
     created_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
 
     class Meta:
         ordering = ['-created_at']
-
-    def __str__(self):
-        return f'Comment by {self.author or "anon"} on {self.movie}'
