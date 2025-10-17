@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-
+# test resolution pb
 # exit si il y a une erreur
 set -o errexit
 
