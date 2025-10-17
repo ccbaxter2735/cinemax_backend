@@ -6,7 +6,7 @@ set -o errexit
 # Installer les dépendances
 pip install -r requirements.txt
 
-python manage.py makemigrations
+# python manage.py makemigrations
 
 # Appliquer les migrations (doit être fait avant la création du superuser)
 python manage.py migrate --noinput
