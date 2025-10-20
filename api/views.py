@@ -39,6 +39,15 @@ class MovieDetailView(generics.RetrieveAPIView):
     permission_classes = [permissions.AllowAny]
 
 
+
+class MovieActorListCreateView(generics.ListCreateAPIView): 
+    serializer_class = CastingSerializer
+    permission_classes = [IsAuthenticatedOrReadOnly]
+
+    def get_queryset(self):
+        movie_id = self.kwargs['movie_id']
+        return Casting.objects.filter(movie_id=movie_id).select_related('actor')
+
 class MovieCommentListCreateView(generics.ListCreateAPIView):
     serializer_class = CommentSerializer
     permission_classes = [IsAuthenticatedOrReadOnly]

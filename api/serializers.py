@@ -31,7 +31,7 @@ class ActorSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Actor
-        fields = ['id', 'first_name', 'last_name', 'full_name', 'bio']
+        fields = ['id', 'first_name', 'last_name', 'full_name', 'biography', 'birth_date', 'photo']
 
     def get_full_name(self, obj):
         if obj.last_name:
@@ -50,7 +50,7 @@ class CastingSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Casting
-        fields = ['id', 'actor', 'actor_id', 'character_name', 'order']
+        fields = ['id', 'actor', 'actor_id', 'role_name', 'order']
 
 
 # -----------------------

@@ -14,6 +14,9 @@ urlpatterns = [
     # Création / listing des commentaires d'un film
     path('movies/<int:movie_id>/comments/', views.MovieCommentListCreateView.as_view(), name='movie-comments'),
 
+    # Création / listing des acteurs d'un film
+    path('movies/<int:movie_id>/actors/', views.MovieActorListCreateView.as_view(), name='movie-actors'),
+
     # Like / unlike toggle d'un film
     path('movies/<int:movie_id>/like/', views.toggle_like, name='movie-like'),
 
