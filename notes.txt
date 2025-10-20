@@ -1,5 +1,173 @@
+Creation du site web + deployment
 
-------------------- Backend -----------------------
+--------------------- database -----------------------------
+
+si pb de migration: python manage.py sqlmigrate nomMigratiom(ex: api 0006_add_rating_to_comment)
+
+
+-------------------- Creation Backend ----------------------
+creation de l environnement virtuel:
+python3 -m venv env
+source env/bin/activate
+
+installer toutes les dependances:
+touch requirements.txt
+mettre le nom des programmes a installer dans requirements
+pip install -r requirements.txt 
+
+creer projet backend:
+django-admin startproject nomProjet
+
+creer une app dans backend:
+python3 manage.py startapp nomAppli
+
+parametrer settings.py de django:
+ajouter ces imports:
+from datetime import timedelta
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
+//pour le developpement
+ALLOWED_HOSTS = ["*"]
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated',
+    )
+}
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=30),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
+}
+
+CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_CREDENTIALS = True
+
+Mettre en place JWT:
+Json web token(JWT)
+auth a chaque fois qu on accede au site web
+json est standard format pour echanger info dans appli web
+
+prendre en compte la table de donnees:
+python3 manage.py makemigrations
+python3 manage.py migrate
+
+pour visualiser le serveur virtuel de son back:
+python3 manage.py runserver
+
+---- schema fonctionnement django --
+
+1️⃣ Le Model
+
+Le model définit la structure des données dans la base.
+
+# tasks/models.py
+from django.db import models
+
+class Task(models.Model):
+    title = models.CharField(max_length=100)
+    description = models.TextField()
+    completed = models.BooleanField(default=False)
+
+    def __str__(self):
+        return self.title
+
+Ici, chaque Task a un titre, une description et un état completed.
+
+2️⃣ Le Serializer
+
+Le serializer convertit ton modèle en JSON (ou inversement). C’est ce qui permet à ton API de communiquer avec le front.
+
+# tasks/serializers.py
+from rest_framework import serializers
+from .models import Task
+
+class TaskSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Task
+        fields = '__all__'  # on expose tous les champs
+
+# tasks/serializers.py
+from rest_framework import serializers
+from .models import Task
+
+class TaskSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Task
+        fields = '__all__'  # on expose tous les champs
+
+3️⃣ La View
+
+La view gère la logique : récupérer, créer, modifier ou supprimer des objets.
+
+# tasks/views.py
+from rest_framework import generics
+from .models import Task
+from .serializers import TaskSerializer
+
+# Liste toutes les tâches et permet d'en créer une nouvelle
+class TaskListCreateView(generics.ListCreateAPIView):
+    queryset = Task.objects.all()
+    serializer_class = TaskSerializer
+
+# Récupère, met à jour ou supprime une tâche spécifique
+class TaskDetailView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Task.objects.all()
+    serializer_class = TaskSerializer
+
+4️⃣ Les URLs
+
+Les URLs relient les requêtes HTTP à la view correspondante.
+
+# tasks/urls.py
+from django.urls import path
+from .views import TaskListCreateView, TaskDetailView
+
+urlpatterns = [
+    path('tasks/', TaskListCreateView.as_view(), name='task-list-create'),
+    path('tasks/<int:pk>/', TaskDetailView.as_view(), name='task-detail'),
+]
+
+Et dans le urls.py principal de ton projet :
+
+# myproject/urls.py
+from django.contrib import admin
+from django.urls import path, include
+
+urlpatterns = [
+    path('admin/', admin.site.urls),
+    path('api/', include('tasks.urls')),  # on inclut les urls de l'app tasks
+]
+
+
+-----------------------------------
+
+WhiteNoise est une bibliothèque Python qui sert à gérer les fichiers statiques (CSS, JavaScript, images, etc.) dans les projets Django, sans avoir besoin d’un serveur web externe comme Nginx ou Apache pour les servir.
+
+Django, en mode développement (DEBUG=True), sert les fichiers statiques lui-même.
+Mais en production (DEBUG=False), Django ne le fait pas par défaut, car ce n’est pas optimal.
+C’est là que WhiteNoise intervient :
+
+Il intercepte les requêtes vers les fichiers statiques.
+
+Il sert ces fichiers efficacement, avec :
+
+Compression Gzip/Brotli automatique (pour réduire la taille des fichiers),
+
+Cache-Control configuré pour de meilleures performances,
+
+Versionnage via des hashed filenames (ex. style.4f3c2a.css).
+
+
+explication API:
+model contient des field ex name, age etc 
+serializer verifie et renvoi element de model en json par field
+
 
 sur render changer build command avec ecrit de base pip install requirements.txt par ./build.sh
 et python -m gunicorn backend.asgi:application -k uvicorn.workers.UvicornWorker dans start command
@@ -8,4 +176,45 @@ voir pour ajouter stockage persistant
 bucket S3 Amazon
 nom du bucket: cinemax-bucket-365117798244
 video explicative: https://www.youtube.com/watch?v=JQVQcNN0cXE
+
+-------------------- Creation Frontend ----------------------
+
+creer le projet react vite:
+npm create vite@latest nomDirectory -- --template react
+
+supprimer App.css et index.css
+
+axios: requete http comme fetch mais plus complet
+pas besoin de .json() manuellement, axios parse automatiquement.
+
+------------------ Creation database PostgreSQL ---------------
+
+aller sur https://choreo.dev/
+creer variable env dans un .env dans le projet backend
+et dans settings.py changer la partie DARTABASES,
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': os.getenv("DB_NAME"),
+        'USER': os.getenv("DB_USER"),
+        'PASSWORD': os.getenv("DB_PWD"),
+        'HOST': os.getenv("DB_HOST"),
+        'PORT': os.getenv("DB_PORT"),
+    }
+}
+
+creer superuser:
+python3 manage.py createsuperuser
+
+------------------ Deploy on render ---------------
+
+dans la partie Frontend mettre la command dans build command: npm ci --include=dev && npm run build
+
+
+return <Form route="/api/token/" method="login" />
+return <Form route="/api/user/register/" method="register" />
+
+
+
 
