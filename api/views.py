@@ -107,3 +107,24 @@ class MovieRatingCreateUpdateView(APIView):
 
         return Response({'rating': RatingSerializer(rating).data, 'avg_rating': avg})
 
+
+class ActorMovieListView(generics.ListAPIView):
+    """
+    GET /api/actors/<actor_id>/movies/
+    Retourne la liste des films où l'acteur apparaît.
+    """
+    serializer_class = MovieListSerializer
+    permission_classes = [permissions.AllowAny]  # ou IsAuthenticatedOrReadOnly si tu veux restreindre
+
+    def get_queryset(self):
+        actor_id = self.kwargs.get('actor_id')
+        # vérifier que l'acteur existe (404 si non)
+        get_object_or_404(Actor, pk=actor_id)
+
+        # Requête : tous les films liés via la table de liaison (Casting)
+        qs = Movie.objects.filter(cast__id=actor_id).distinct()
+
+        # optimisation optionnelle
+        qs = qs.select_related()  # si tu as des FK directes
+
+        return qs
