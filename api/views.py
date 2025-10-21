@@ -128,3 +128,18 @@ class ActorMovieListView(generics.ListAPIView):
         qs = qs.select_related()  # si tu as des FK directes
 
         return qs
+
+class ActorView(generics.RetrieveAPIView):
+    """
+    GET /api/actors/<pk>/  -> renvoie la fiche détaillée d'un acteur.
+    Permission: lecture publique, modification réservée (ici on n'expose que GET).
+    """
+    queryset = Actor.objects.all()
+    serializer_class = ActorSerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    lookup_field = "pk"
+
+  
+    def get_queryset(self):
+        # si tu as des relations à précharger (ex: photo stockée ailleurs), adapte ici
+        return super().get_queryset()
