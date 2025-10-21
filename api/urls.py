@@ -21,7 +21,7 @@ urlpatterns = [
     # Like / unlike toggle d'un film
     path('movies/<int:movie_id>/like/', views.toggle_like, name='movie-like'),
 
-    path('actors/<int:pk>/', views.ActorView.as_view(), name='actor-detail'),
+    # path('actors/<int:pk>/', views.ActorView.as_view(), name='actor-detail'),
 
     # Notation d'un film
     path('movies/<int:movie_id>/rate/', views.MovieRatingCreateUpdateView.as_view(), name='movie-rating'),
