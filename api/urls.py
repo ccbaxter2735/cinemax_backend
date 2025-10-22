@@ -23,6 +23,8 @@ urlpatterns = [
 
     path('actors/<int:pk>/', views.ActorView.as_view(), name='actor-detail'),
 
+    path('actors/', views.ActorListView.as_view(), name='actor-list'),
+
     # Notation d'un film
     path('movies/<int:movie_id>/rate/', views.MovieRatingCreateUpdateView.as_view(), name='movie-rating'),
 

@@ -1,5 +1,6 @@
 from django.shortcuts import render
 from django.contrib.auth.models import User
+from django.db.models import Q
 from django.shortcuts import get_object_or_404
 
 from rest_framework.permissions import AllowAny, IsAuthenticated
@@ -31,6 +32,36 @@ class MovieListView(generics.ListAPIView):
     queryset = Movie.objects.all()
     serializer_class = MovieListSerializer
     permission_classes = [permissions.AllowAny]
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        q = self.request.query_params.get("q")
+
+        if q:
+            q = q.strip()
+            queryset = queryset.filter(
+                Q(title_fr__icontains=q) |
+                Q(title_original__icontains=q)
+            ).distinct()
+
+        return queryset
+
+class ActorListView(generics.ListAPIView):
+    queryset = Actor.objects.all()
+    serializer_class = ActorSerializer
+    permission_classes = [permissions.AllowAny]
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        q = self.request.query_params.get("q")
+
+        if q:
+            q = q.strip()
+            queryset = queryset.filter(
+                Q(full_name__icontains=q)
+            ).distinct()
+
+        return queryset
 
 
 class MovieDetailView(generics.RetrieveAPIView):
@@ -159,3 +190,5 @@ class ActorView(generics.RetrieveAPIView):
     def get_queryset(self):
         # si tu as des relations à précharger (ex: photo stockée ailleurs), adapte ici
         return super().get_queryset()
+    
+    
