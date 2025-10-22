@@ -58,7 +58,7 @@ class CastingSerializer(serializers.ModelSerializer):
 # -----------------------
 class CommentSerializer(serializers.ModelSerializer):
     author_username = serializers.SerializerMethodField(read_only=True)
-    rating_score = serializers.IntegerField(source='rating.score', default=None)
+    rating_score = serializers.SerializerMethodField()
 
     class Meta:
         model = Comment
@@ -67,6 +67,11 @@ class CommentSerializer(serializers.ModelSerializer):
 
     def get_author_username(self, obj):
         return obj.author.username if obj.author else None
+    
+    def get_rating_score(self, obj):
+        if obj.rating:
+            return getattr(obj.rating, "score", None)
+        return None
 
     def validate_text(self, value):
         value = value.strip()

@@ -93,6 +93,8 @@ class MovieRatingCreateUpdateView(APIView):
         serializer = RatingSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         score = serializer.validated_data['score']
+        if score is None:
+            return Response({"detail": "score required"}, status=status.HTTP_400_BAD_REQUEST)
 
         # Crée ou met à jour la note
         rating, created = Rating.objects.update_or_create(
@@ -100,6 +102,19 @@ class MovieRatingCreateUpdateView(APIView):
             movie=movie,
             defaults={'score': score}
         )
+
+        try:
+            comment_to_update = Comment.objects.filter(
+                movie=movie,
+                author=request.user,
+                rating__isnull=True
+            ).order_by('-created_at').first()
+            if comment_to_update:
+                comment_to_update.rating = rating
+                comment_to_update.save(update_fields=['rating'])
+        except Exception:
+            # ne doit pas bloquer la réponse si la liaison échoue
+            pass
 
         # Recalcul de la moyenne
         avg = Rating.objects.filter(movie=movie).aggregate(avg=Avg('score'))['avg'] or 0.0
