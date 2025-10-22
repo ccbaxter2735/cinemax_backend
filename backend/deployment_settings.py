@@ -12,7 +12,7 @@ DEBUG = False
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',
+    # 'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -27,12 +27,6 @@ MIDDLEWARE = [
 #     'http://localhost:5173',
 # ]
 
-# chemin où collectstatic va écrire
-STATIC_URL = "/static/"
-STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
-
-# stockage des fichiers statiques (Whitenoise recommandé en production)
-STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 # Optionnel — si tu gères des fichiers uploadés
 MEDIA_URL = "/media/"
@@ -45,6 +39,10 @@ AWS_SECRET_ACCESS_KEY = os.getenv('AWS_SECRET_ACCESS_KEY')
 AWS_STORAGE_BUCKET_NAME = os.getenv('AWS_STORAGE_BUCKET_NAME')
 AWS_S3_CUSTOM_DOMAIN = '%s.s3.amazonaws.com' % AWS_STORAGE_BUCKET_NAME
 AWS_S3_FILE_OVERWRITE = False
+
+# chemin où collectstatic va écrire
+STATIC_URL = f"https://{AWS_S3_CUSTOM_DOMAIN}/static/"
+STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 
 STORAGES = {
     # pour media file
