@@ -61,3 +61,6 @@ DATABASES = {
         conn_max_age=600
     )
 }
+
+CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_CREDENTIALS = True
